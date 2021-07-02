@@ -11,6 +11,8 @@ import com.hojae.spring.board.model.vo.Attachment;
 import com.hojae.spring.board.model.vo.Board;
 import com.hojae.spring.board.model.vo.BoardExt;
 
+import jdk.internal.org.jline.utils.Log;
+
 @Service
 public class BoardServiceImpl implements BoardService {
 
@@ -49,26 +51,34 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	@Override
-	public int insertAttachment(Attachment attach) {
-		return boardDao.insertAttachment(attach);
+	public int insertBoard(BoardExt board) {
+		int result=0;
+		
+		//보드등록
+		//dml실행후 리턴된후 리턴된 정수는 몇행인지 나타내는것이다=>인서트후 1이나오면 1행이들어갔다는뜻
+		result=boardDao.insertBoard(board);
+		
+		Log.debug("board={}",board);
+		
+		//attachment등록
+		if(board.getAttachList().size()>0) {
+			for(Attachment attach:board.getAttachList()) {
+				attach.setBoardNo(board.getNo()); //board no fk 세팅
+				result=insertAttachment(attach);
+			}
+		}
+		
+		
+		
+		return result;
 	}
 
 	@Override
-	public int insertBoard(BoardExt board) {
-		int result = 0; 
-		//1.board 등록
-		//dml실행후 리턴된 후 리턴된 정수는 몇행인지 나타내느것이다. =>인서트후 1이나오면 1행이 들어갔다는뜻이고 0이면 변동있는 행이없다는것
-		result = boardDao.insertBoard(board);
-		//Logger.debug("board = {}", board);  ==>이거왜 에러나는지모르겠다.주석
-		//2.attachment 등록
-		if(board.getAttachList().size() > 0) {
-			for(Attachment attach : board.getAttachList()) {
-				attach.setBoardNo(board.getNo()); // board no fk 세팅
-				result = insertAttachment(attach);
-			}
-		}
-				//행
-		return result; 
+	public int insertAttachment(Attachment attach) {
+		// TODO Auto-generated method stub
+		return boardDao.insertAttachment(attach);
 	}
+
+	
 	
 }

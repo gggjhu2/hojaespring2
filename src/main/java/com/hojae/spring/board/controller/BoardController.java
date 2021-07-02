@@ -9,6 +9,7 @@ import javax.servlet.ServletContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -90,71 +91,7 @@ public class BoardController {
 	}
 		
 
-	@PostMapping("/board/insertBoard.do")
-	public String insertBoard(
-			@ModelAttribute BoardExt board,
-			@RequestParam(name = "upFile") MultipartFile[] upFiles,
-			RedirectAttributes redirectAttr)  throws Exception
-	{
-		log.info("board = {}", board);
-		
-		// 0. 업로드한 파일 처리
-		for(MultipartFile f : upFiles) {
-			if(!f.isEmpty()) {
-				log.debug("f = {}", f);}
-		}
-			
-			
-		try {
-				log.debug("board = {}", board);
-				//1. 파일 저장 : 절대경로 /resources/upload/board
-				//pageContext:PageContext - request:HttpServletRequest - session:HttpSession - application:ServletContext
-				String saveDirectory = application.getRealPath("/resources/upload/board");
-				log.debug("saveDirectory = {}", saveDirectory);
-				
-				//디렉토리 생성
-				File dir = new File(saveDirectory);
-				if(!dir.exists())
-					dir.mkdirs(); // 복수개의 디렉토리를 생성
-				
-				List<Attachment> attachList = new ArrayList<>();
-				
-				for(MultipartFile upFile : upFiles) {
-					//input[name=upFile]로부터 비어있는 upFile이 넘어온다.
-					if(upFile.isEmpty()) continue;
-					
-					String renamedFilename = 
-							HelloSpringUtils.getRenamedFilename(upFile.getOriginalFilename());
-					
-					//a.서버컴퓨터에 저장
-					File dest = new File(saveDirectory, renamedFilename);
-					upFile.transferTo(dest); // 파일이동
-					
-					//b.저장된 데이터를 Attachment객체에 저장 및 list에 추가
-					Attachment attach = new Attachment();
-					attach.setOriginalFilename(upFile.getOriginalFilename());
-					attach.setRenamedFilename(renamedFilename);
-					attachList.add(attach);
-				}
-				
-				log.debug("attachList = {}", attachList);
-				//board객체에 설정
-				board.setAttachList(attachList);
-				
-				//2. 업무로직 : db저장 board, attachment
-				int result = boardService.insertBoard(board);
-				
-				
-				//3. 사용자피드백 &  리다이렉트
-				redirectAttr.addFlashAttribute("msg", "게시글등록 성공!");
-			} catch(Exception e) {
-				log.error("게시글 등록 오류!", e);
-				throw e;
-			}
-		
-		return "redirect:/board/selectBoardList.do?no=" ;
-	}
-	// 인서트 보드
+	
 	
 //	@RequestMapping("/board/boardEnroll.do")
 //	public String boardEnroll(Board board, RedirectAttributes redirectAttr) {
@@ -196,34 +133,81 @@ public class BoardController {
 		
 		redirectAttr.addFlashAttribute("msg", "게시글 삭제 성공");
 		return "redirect:/board/selectBoardList.do";
+
 	}
 	// 딜리트완성
 
-//	@GetMapping("/selectBoardList.do")
-//	public String boardList(
-//				@RequestParam(required = true, defaultValue = "1") int cpage,
-//				HttpServletRequest request,
-//				Model model
-//			) {
-//		try {
-//			log.debug("cpage = {}", cpage);
-//			final int limit = 10;
-//			final int offset = (cpage - 1) * limit;
-//			Map<String, Object> param = new HashMap<>();
-//			param.put("limit", limit);
-//			param.put("offset", offset);
-//			//1.업무로직 : content영역 - Rowbounds
-//			List list = (List) boardService.selectBoardList(param);
-//			
-//			String url = request.getRequestURI();
-//			
-//			//2. jsp에 위임
-//			model.addAttribute("list", list);
-//		} catch(Exception e) {
-//			log.error("게시글 조회 오류!", e);
-//			throw e;
-//		}
-//		return "board/selectBoardList";
-//	}
-
-}
+	
+	@PostMapping("/board/insertBoard")
+	public String insertBoard(@ModelAttribute BoardExt board,
+			@RequestParam (name="upFile")MultipartFile[]upFiles,
+			RedirectAttributes redirectAttr) throws Exception
+	{
+		log.info("board={}",board);
+		//보드잘들어왔는지 로그출력
+		
+		//업로드한 파일처리
+		for(MultipartFile f : upFiles) {
+			if(!f.isEmpty()) {
+				log.debug("f={}",f);}
+			}
+		
+		try {
+			log.debug("board={}",board);
+			//파일저장 :절대경로 /resources/upload/board
+			String saveDirectory=application.getRealPath("/resources/upload/board");
+			
+			log.debug("saveDirectory={}",saveDirectory);
+			
+			//디렉토리생성
+			File dir=new File(saveDirectory);
+			if(dir.exists())
+				dir.mkdirs();//복수개의 디렉토리를 생성
+			
+			
+			List<Attachment> attachList=new ArrayList<>();
+			
+			
+			
+			for(MultipartFile upFile:upFiles) {
+				//input[name=upFile]로부터 비어있는 upFile 이 넘어온다.
+				if(upFile.isEmpty()) continue;
+				
+				String renamedFilename=HelloSpringUtils.getRenamedFilename(upFile.getOriginalFilename());
+				
+			//서버컴퓨터에 저장
+				File dest= new File(saveDirectory,renamedFilename);
+			upFile.transferTo(dest);//파일이동
+			
+			
+			//저장된 데이터를 어태치먼트 객체에 저장 및 list에 추가
+			Attachment attach =new Attachment();
+			attach.setOriginalFilename(upFile.getOriginalFilename());
+			attach.setRenamedFilename(renamedFilename);
+			attachList.add(attach);
+			}
+			
+			
+			log.debug("attachList={}",attachList);
+			//board객체에 설정
+			board.setAttachList(attachList);
+			
+			//업무로직 =>db저장 board, attachment
+			int result= boardService.insertBoard(board);
+			
+			//사용자 피드백 &리다이렉트
+			redirectAttr.addFlashAttribute("msg","게시글등록완료!");
+		}catch (Exception e) {
+			log.error("게시글등록실패!",e);
+			throw e;
+		}
+		return "redirect:/board/selectBoardList.do?no=";
+		}
+	}
+	
+	
+		
+	
+	
+	
+			

@@ -20,10 +20,6 @@ public interface BoardService {
 	
 	List<Board> selectBoardList();
 	
-	int insertBoard(BoardExt board);
-	
-	int insertAttachment(Attachment attach);
-
 	Board selectOne(int no);
 
 	
@@ -33,8 +29,7 @@ public interface BoardService {
 
 	int boardEnroll(Board board);
 
-	
-
-
+	int insertBoard(BoardExt board);
+	int insertAttachment(Attachment attach);
 	
 }
