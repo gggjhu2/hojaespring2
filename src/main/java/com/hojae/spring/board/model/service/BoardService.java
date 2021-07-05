@@ -29,6 +29,7 @@ public interface BoardService {
 
 	int boardEnroll(Board board);
 
+<<<<<<< HEAD
 	List<Attachment> selectAttachList(int no);
 
 	int insertBoard(BoardExt board);
@@ -38,5 +39,9 @@ public interface BoardService {
 	
 
 
+=======
+	int insertBoard(BoardExt board);
+	int insertAttachment(Attachment attach);
+>>>>>>> 4719bc0d0c0f88a77d708112528a8bd5909be1c7
 	
 }

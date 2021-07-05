@@ -58,6 +58,7 @@ public class BoardDaoImpl implements BoardDao {
 	}
 
 	@Override
+<<<<<<< HEAD
 	public List<Attachment> selectAttachList(int no) {
 		// TODO Auto-generated method stub
 		return session.selectList("board.selectAttachList",no);
@@ -71,4 +72,13 @@ public class BoardDaoImpl implements BoardDao {
 	
 	
 	
+=======
+	public int insertBoard(Board board) {
+		// TODO Auto-generated method stub
+		return session.insert("board.insertBoard",board);
+	}
+
+	
+
+>>>>>>> 4719bc0d0c0f88a77d708112528a8bd5909be1c7
 }

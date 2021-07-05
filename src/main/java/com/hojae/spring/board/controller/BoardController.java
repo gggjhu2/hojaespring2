@@ -16,7 +16,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+<<<<<<< HEAD
 import org.springframework.web.bind.annotation.GetMapping;
+=======
+import org.springframework.validation.BindingResult;
+>>>>>>> 4719bc0d0c0f88a77d708112528a8bd5909be1c7
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -108,8 +112,13 @@ public class BoardController {
 
 	}
 
+<<<<<<< HEAD
 	// 인서트 보드
 
+=======
+	
+	
+>>>>>>> 4719bc0d0c0f88a77d708112528a8bd5909be1c7
 //	@RequestMapping("/board/boardEnroll.do")
 //	public String boardEnroll(Board board, RedirectAttributes redirectAttr) {
 //		log.info("board = {}", board);
@@ -122,6 +131,7 @@ public class BoardController {
 //		log.info("insert 이후 result = {}", result);
 //		return "redirect:/board/selectBoardList.do";
 //	}
+<<<<<<< HEAD
 
 	// 보드인롤
 
@@ -282,6 +292,10 @@ public class BoardController {
 		
 		return "redirect:/board/selectOne.do?no="+board.getNo();
 	}
+=======
+	
+	//보드인롤
+>>>>>>> 4719bc0d0c0f88a77d708112528a8bd5909be1c7
 
 	@GetMapping("/board/fileDownload.do")
 	@ResponseBody // 리턴객체를 응답메세지 body영역에 작성한다.
@@ -291,6 +305,7 @@ public class BoardController {
 		// 1. 업무로직 : db조회 - renamedFilename 저장된 이름 알아내기
 		Attachment attach = boardService.selectOneAttachment(no);
 
+<<<<<<< HEAD
 		// 2. Resource객체생성
 		String saveDirectory = application.getRealPath("/resources/upload/board");
 		File downFile = new File(saveDirectory, attach.getRenamedFilename());
@@ -304,3 +319,89 @@ public class BoardController {
 	}
 }
 
+=======
+		log.info("=======================");
+		log.info("delete 이후 board = {}", board);
+		log.info("delete 이후 result = {}", result);
+		
+		redirectAttr.addFlashAttribute("msg", "게시글 삭제 성공");
+		return "redirect:/board/selectBoardList.do";
+
+	}
+	// 딜리트완성
+
+	
+	@PostMapping("/board/insertBoard")
+	public String insertBoard(@ModelAttribute BoardExt board,
+			@RequestParam (name="upFile")MultipartFile[]upFiles,
+			RedirectAttributes redirectAttr) throws Exception
+	{
+		log.info("board={}",board);
+		//보드잘들어왔는지 로그출력
+		
+		//업로드한 파일처리
+		for(MultipartFile f : upFiles) {
+			if(!f.isEmpty()) {
+				log.debug("f={}",f);}
+			}
+		
+		try {
+			log.debug("board={}",board);
+			//파일저장 :절대경로 /resources/upload/board
+			String saveDirectory=application.getRealPath("/resources/upload/board");
+			
+			log.debug("saveDirectory={}",saveDirectory);
+			
+			//디렉토리생성
+			File dir=new File(saveDirectory);
+			if(dir.exists())
+				dir.mkdirs();//복수개의 디렉토리를 생성
+			
+			
+			List<Attachment> attachList=new ArrayList<>();
+			
+			
+			
+			for(MultipartFile upFile:upFiles) {
+				//input[name=upFile]로부터 비어있는 upFile 이 넘어온다.
+				if(upFile.isEmpty()) continue;
+				
+				String renamedFilename=HelloSpringUtils.getRenamedFilename(upFile.getOriginalFilename());
+				
+			//서버컴퓨터에 저장
+				File dest= new File(saveDirectory,renamedFilename);
+			upFile.transferTo(dest);//파일이동
+			
+			
+			//저장된 데이터를 어태치먼트 객체에 저장 및 list에 추가
+			Attachment attach =new Attachment();
+			attach.setOriginalFilename(upFile.getOriginalFilename());
+			attach.setRenamedFilename(renamedFilename);
+			attachList.add(attach);
+			}
+			
+			
+			log.debug("attachList={}",attachList);
+			//board객체에 설정
+			board.setAttachList(attachList);
+			
+			//업무로직 =>db저장 board, attachment
+			int result= boardService.insertBoard(board);
+			
+			//사용자 피드백 &리다이렉트
+			redirectAttr.addFlashAttribute("msg","게시글등록완료!");
+		}catch (Exception e) {
+			log.error("게시글등록실패!",e);
+			throw e;
+		}
+		return "redirect:/board/selectBoardList.do?no=";
+		}
+	}
+	
+	
+		
+	
+	
+	
+			
+>>>>>>> 4719bc0d0c0f88a77d708112528a8bd5909be1c7

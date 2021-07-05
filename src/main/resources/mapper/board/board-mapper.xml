@@ -68,6 +68,28 @@
 			dual
 		</selectKey>
 	</insert>
+		
+	<insert id="insertBoard" parameterType="board">
+		insert into
+			board(
+				no,
+				title,
+				member_id,
+				content
+			)
+		values (
+			seq_board_no.nextval,
+			#{title},
+			#{memberId},
+			#{content}
+		)
+		<selectKey keyProperty="no" order="AFTER" resultType="_int">
+		select
+			seq_board_no.currval
+		from 
+			dual
+		</selectKey>
+	</insert>
 	
 	<insert id="insertAttachment">
 		insert into
@@ -86,6 +108,7 @@
 	</insert>
 	
 	
+<<<<<<< HEAD
 	<insert id="insertBoard" parameterType="board">
 		insert into
 			board(
@@ -133,6 +156,8 @@
 	
 	
 	
+=======
+>>>>>>> 4719bc0d0c0f88a77d708112528a8bd5909be1c7
 	
 	</mapper>
 	
